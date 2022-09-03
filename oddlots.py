@@ -50,7 +50,7 @@ def find_odd_lots():
     for root, dirs, files in os.walk(TMP_FOLDER_NAME, topdown=False):
         for name in files:
             with open(os.path.join(root, name)) as f:
-                if "odd lots" in f.read().lower():
+                if "odd lot" in f.read().lower():
                     send_message_to_discord(os.path.basename(root))
     shutil.rmtree(TMP_FOLDER_NAME)
 
