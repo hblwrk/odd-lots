@@ -25,7 +25,7 @@ def get_all_filings(date_to_download: date):
                             end_date=date_to_download,
                             user_agent=SEC_USER_AGENT,
                             entry_filter=lambda f: any(
-                                x in f.form_type.lower() for x in ("sc to", "sc13e4", "sc14d", "424b3"))
+                                x in f.form_type.lower() for x in ("sc to", "sc13e4", "sc14d", "424b3", "425"))
                             )
     try:
         daily_filings.save(TMP_FOLDER_NAME,
@@ -53,7 +53,8 @@ def find_odd_lots():
     for root, dirs, files in os.walk(TMP_FOLDER_NAME, topdown=False):
         for name in files:
             with open(os.path.join(root, name)) as f:
-                if "odd lot" in f.read().lower():
+                file_content = f.read().lower()
+                if any(keyword in file_content for keyword in ("odd lot", "odd-lot")):
                     send_message_to_discord(os.path.basename(root))
     shutil.rmtree(TMP_FOLDER_NAME)
 
@@ -66,7 +67,7 @@ def send_message_to_discord(cik: str):
     ticker = get_ticker(cik)
     webhook = DiscordWebhook(
         url=DISCORD_WEBHOOK_URL,
-        content=f"Eine neue Odd Lots Arbritage wurde für **{ticker}** gefunden. "
+        content=f"Eine neue Odd Lots Arbitrage wurde für **{ticker}** gefunden. "
                 f"Hier gehts zu den Filings: https://www.sec.gov/edgar/search/#/entityName={int(cik):010}")
     webhook.execute()
 
